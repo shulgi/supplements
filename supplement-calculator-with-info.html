@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Supplement Calculator!!!</title>
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+            rel="stylesheet"
+        />
+        <style>
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 50;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0, 0, 0, 0.8);
+            }
+            .modal-content {
+                background-color: #2d3748;
+                margin: 5% auto;
+                padding: 20px;
+                border-radius: 8px;
+                width: 90%;
+                max-width: 800px;
+                max-height: 80%;
+                overflow-y: auto;
+                color: #edf2f7;
+            }
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .modal-close {
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+            a {
+                color: #63b3ed;
+                text-decoration: underline;
+            }
+        </style>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    </head>
+    <body class="bg-gray-900 text-gray-300 p-8">
+        <div class="max-w-2xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h1 class="text-3xl font-bold mb-6 text-gray-100">
+                Supplement Calculator
+            </h1>
+            <div class="mb-6">
+                <label for="weight" class="block mb-2 text-lg"
+                    >Weight (kg):</label
+                >
+                <input
+                    type="number"
+                    id="weight"
+                    class="w-full p-2 border rounded bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value="75"
+                />
+            </div>
+            <table class="w-full mt-4">
+                <thead>
+                    <tr class="text-gray-400 border-b border-gray-700">
+                        <th class="text-left py-2">Supplement</th>
+                        <th class="text-left py-2">Amount per kg</th>
+                        <th class="text-left py-2">Calculated Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="results"></tbody>
+            </table>
+        </div>
+
+        <div id="supplementModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle" class="text-2xl font-bold mb-4"></h2>
+                    <span id="closeModal" class="modal-close">&times;</span>
+                </div>
+                <p id="modalDescription" class="mb-4"></p>
+                <div id="modalContent"></div>
+                <div
+                    id="modalReferences"
+                    class="mt-4 text-sm text-gray-400"
+                ></div>
+            </div>
+        </div>
+
+        <script>
+            const supplements = [
+                {
+                    name: "Ashwagandha",
+                    amount: 0.0268,
+                    unit: "g",
+                    key: "Ashwagandha",
+                },
+                {
+                    name: "Spirulina",
+                    amount: 0.0268,
+                    unit: "g",
+                    key: "Spirulina and Chlorella",
+                },
+                {
+                    name: "Chlorella",
+                    amount: 0.0268,
+                    unit: "g",
+                    key: "Spirulina and Chlorella",
+                },
+                {
+                    name: "Cacao powder",
+                    amount: 0.0804,
+                    unit: "g",
+                    key: "Cacao Powder",
+                },
+                {
+                    name: "Ceylon cinnamon",
+                    amount: 0.0134,
+                    unit: "g",
+                    key: "Ceylon Cinnamon",
+                },
+                {
+                    name: "Glycine",
+                    amount: 0.0313,
+                    unit: "g",
+                    key: "Glycine and N-Acetylcysteine",
+                },
+                {
+                    name: "N-acetyl-cysteine",
+                    amount: 0.0223,
+                    unit: "g",
+                    key: "Glycine and N-Acetylcysteine",
+                },
+                { name: "Taurine", amount: 0.0179, unit: "g", key: "Taurine" },
+                {
+                    name: "Calcium ascorbate",
+                    amount: 0.0134,
+                    unit: "g",
+                    key: "Calcium Ascorbate",
+                },
+                {
+                    name: "D3 cholecalciferol",
+                    amount: 39.0625,
+                    unit: "IU",
+                    key: "Vitamin D3",
+                },
+                {
+                    name: "Turmeric root extract",
+                    amount: 20.5625,
+                    unit: "mg",
+                    key: "Turmeric with Piperine",
+                },
+                {
+                    name: "Black pepper fruit extract",
+                    amount: 0.15625,
+                    unit: "mg",
+                    key: "Turmeric with Piperine",
+                },
+                {
+                    name: "Coenzyme Q10",
+                    amount: 1.5625,
+                    unit: "mg",
+                    key: "Coenzyme Q10",
+                },
+            ];
+
+            const supplementData = {
+                supplements: [
+                    {
+                        name: "Glycine and N-Acetylcysteine",
+                        description:
+                            "Glycine and N-Acetylcysteine: Boosting Glutathione Production for Enhanced Antioxidant Defense",
+                        content:
+                            "As we age, our body's natural antioxidant defenses diminish, leading to increased oxidative stress. One critical antioxidant is **glutathione**, composed of glutamine, cysteine, and glycine. Glutathione neutralizes free radicals, detoxifies harmful substances, and maintains cellular health.\n\n### Why glutathione levels decline with age\n\nGlutathione levels decrease significantly after age 45 due to reduced synthesis and increased degradation, contributing to aging and age-related conditions.\n\n### Role of glycine and N-acetylcysteine\n\n- **Glycine**: Essential for glutathione synthesis; supplementation enhances production and supports detoxification.\n- **N-acetylcysteine (NAC)**: Provides cysteine for glutathione synthesis; replenishes glutathione levels, reduces oxidative stress, and supports immune function.\n\n### Benefits of enhancing glutathione levels\n\n- Improved antioxidant defense\n- Enhanced detoxification\n- Strengthened immune system\n- Reduced oxidative stress\n\n### References\n\n1. Sekhar, R. V., et al. (2011). *Deficient synthesis of glutathione underlies oxidative stress in aging and can be corrected by dietary glycine and N-acetylcysteine supplementation*. [**The American Journal of Clinical Nutrition**](https://doi.org/10.3945/ajcn.110.003483), 94(3), 847–853.\n2. Wu, G., et al. (2004). *Glutathione metabolism and its implications for health*. [**The Journal of Nutrition**](https://doi.org/10.1093/jn/134.3.489), 134(3), 489–492.",
+                    },
+                    {
+                        name: "Cacao Powder",
+                        description:
+                            "Cacao Powder: Harnessing Flavanols for Heart and Brain Health",
+                        content:
+                            "Cacao powder is rich in **flavanols**, compounds that offer cardiovascular and cognitive benefits.\n\n### Heart health\n\n- **Improved vascular function**: Flavanols stimulate nitric oxide production, enhancing blood flow.\n- **Blood pressure reduction**: Associated with modest decreases in blood pressure.\n- **Antioxidant effects**: Reduces oxidative stress and inflammation.\n\n### Brain health\n\n- **Enhanced cognitive function**: Improves attention, processing speed, and memory.\n- **Neuroprotective effects**: May slow progression of neurodegenerative diseases.\n- **Improved mood**: Influences neurotransmitters like serotonin and dopamine.\n\n### References\n\n1. Hooper, L., et al. (2012). *Effects of chocolate, cocoa, and flavan-3-ols on cardiovascular health: a systematic review and meta-analysis of randomized trials*. [**The American Journal of Clinical Nutrition**](https://doi.org/10.3945/ajcn.111.023457), 95(3), 740–751.\n2. Socci, V., et al. (2017). *Enhancing Human Cognition with Cocoa Flavonoids*. [**Frontiers in Nutrition**](https://doi.org/10.3389/fnut.2017.00019), 4, 19.",
+                    },
+                    {
+                        name: "Calcium Ascorbate",
+                        description:
+                            "Calcium Ascorbate: Supplementing Calcium Needs When Consuming Cacao on a Dairy-Free Diet",
+                        content:
+                            "High cacao intake may affect calcium metabolism due to its oxalate content. For those who are dairy-free, **calcium ascorbate** provides bioavailable calcium with added vitamin C.\n\n### Why calcium ascorbate\n\n- **Mitigates oxalate effects**: Supplies calcium to offset reduced absorption caused by oxalates in cacao.\n- **Supports bone health**: Essential for strong bones; vitamin C aids collagen formation.\n- **Gentle on digestion**: Less acidic, suitable for sensitive stomachs.\n\n### References\n\n1. Noonan, S. C., & Savage, G. P. (1999). *Oxalate content of foods and its effect on humans*. [**Asia Pacific Journal of Clinical Nutrition**](https://doi.org/10.1046/j.1440-6047.1999.00038.x), 8(1), 64–74.\n2. Carr, A. C., & Maggini, S. (2017). *Vitamin C and Immune Function*. [**Nutrients**](https://doi.org/10.3390/nu9111211), 9(11), 1211.",
+                    },
+                    {
+                        name: "Ashwagandha",
+                        description:
+                            "Ashwagandha: Supporting Sleep, Testosterone Levels, Cholesterol Management, and Stress Reduction",
+                        content:
+                            "**Ashwagandha** (*Withania somnifera*) is an adaptogenic herb with multiple health benefits.\n\n### Key benefits\n\n1. **Improved sleep**: Enhances sleep quality and relaxation.\n\n   - **Reference**: Langade, D., et al. (2019). *Efficacy and Safety of Ashwagandha Root Extract in Insomnia and Anxiety*. [**Cureus**](https://doi.org/10.7759/cureus.5797), 11(9), e5797.\n\n2. **Testosterone support**: May boost testosterone levels and reproductive health.\n\n   - **Reference**: Lopresti, A. L., et al. (2019). *A Randomized Study Examining the Hormonal Effects of Ashwagandha*. [**American Journal of Men's Health**](https://doi.org/10.1177/1557988319835985), 13(2).\n\n3. **Lowering cholesterol**: Exhibits lipid-lowering properties.\n\n   - **Reference**: Andallu, B., & Radhika, B. (2000). *Hypoglycemic, diuretic and hypocholesterolemic effect of winter cherry*. [**Indian Journal of Experimental Biology**](https://www.ncbi.nlm.nih.gov/pubmed/11247117), 38(6), 607–609.\n\n4. **Stress management**: Modulates cortisol levels, reducing anxiety.\n\n   - **Reference**: Chandrasekhar, K., et al. (2012). *A study of Ashwagandha root extract in reducing stress and anxiety*. [**Indian Journal of Psychological Medicine**](https://doi.org/10.4103/0253-7176.106022), 34(3), 255–262.",
+                    },
+                    {
+                        name: "Spirulina and Chlorella",
+                        description:
+                            "Spirulina and Chlorella: Nutrient-Dense Algae for Comprehensive Health Support",
+                        content:
+                            "**Spirulina** and **Chlorella** are nutrient-rich algae offering various health benefits.\n\n### Key benefits\n\n- **Rich nutrient profile**: High in protein, vitamins, minerals, and antioxidants.\n- **Detoxification support**: Binds to heavy metals, aiding elimination.\n- **Immune enhancement**: Boosts immune response and reduces inflammation.\n- **Cardiovascular health**: May lower cholesterol and regulate blood pressure.\n\n### References\n\n1. Becker, E. W. (2007). *Micro-algae as a source of protein*. [**Biotechnology Advances**](https://doi.org/10.1016/j.biotechadv.2006.11.002), 25(2), 207–210.\n2. Khan, Z., et al. (2005). *Nutritional and therapeutic potential of Spirulina*. [**Current Pharmaceutical Biotechnology**](https://doi.org/10.2174/138920105774370607), 6(5), 373–379.",
+                    },
+                    {
+                        name: "Ceylon Cinnamon",
+                        description:
+                            "Ceylon Cinnamon: A Spice with Health-Promoting Properties",
+                        content:
+                            "**Ceylon cinnamon** (*Cinnamomum verum*) offers potential health benefits with low coumarin content.\n\n### Key benefits\n\n- **Blood sugar regulation**: Improves insulin sensitivity and lowers blood glucose.\n- **Antioxidant properties**: Rich in polyphenols combating oxidative stress.\n- **Cardiovascular support**: May reduce LDL cholesterol and triglycerides.\n- **Neuroprotective effects**: Potentially inhibits neurodegenerative factors.\n\n### References\n\n1. Ranasinghe, P., et al. (2012). *Efficacy and safety of 'true' cinnamon as a pharmaceutical agent in diabetes*. [**Diabetic Medicine**](https://doi.org/10.1111/j.1464-5491.2012.03718.x), 29(12), 1480–1492.\n2. Shan, B., et al. (2005). *Antioxidant capacity of 26 spice extracts*. [**Journal of Agricultural and Food Chemistry**](https://doi.org/10.1021/jf051513y), 53(20), 7749–7759.",
+                    },
+                    {
+                        name: "Taurine",
+                        description:
+                            "Taurine: Antioxidant and Cardiovascular Benefits with Additional Health Advantages",
+                        content:
+                            "**Taurine** is an amino acid supporting antioxidant defenses and heart health.\n\n### Key benefits\n\n- **Antioxidant properties**: Protects cells from oxidative damage.\n- **Cardiovascular support**: May reduce blood pressure and improve lipid profiles.\n- **Exercise performance**: Enhances endurance and recovery.\n- **Neurological benefits**: Neuroprotective effects on neurotransmission.\n\n### References\n\n1. Jong, C. J., et al. (2012). *Mechanism underlying the antioxidant activity of taurine*. [**Amino Acids**](https://doi.org/10.1007/s00726-011-0976-7), 42(6), 2223–2232.\n2. Sun, Q., et al. (2016). *Effect of taurine supplementation on blood pressure*. [**Hypertension Research**](https://doi.org/10.1038/hr.2016.28), 39(8), 633–638.",
+                    },
+                    {
+                        name: "Vitamin D3",
+                        description:
+                            "Vitamin D3: Supporting Bone Health and Immune Function",
+                        content:
+                            "### Benefits\n\n- **Bone health**: Aids calcium absorption, maintaining strong bones.\n- **Immune support**: Modulates immune system, reducing infection risk.\n- **Mood regulation**: May improve mood and reduce depression risk.\n\n### References\n\n1. Holick, M. F. (2007). *Vitamin D Deficiency*. [**New England Journal of Medicine**](https://doi.org/10.1056/NEJMra070553), 357(3), 266–281.\n2. Bouillon, R., et al. (2019). *Skeletal and Extraskeletal Actions of Vitamin D*. [**Endocrine Reviews**](https://doi.org/10.1210/er.2018-00126), 40(4), 1109–1151.",
+                    },
+                    {
+                        name: "Coenzyme Q10",
+                        description:
+                            "Coenzyme Q10 (CoQ10): Enhancing Heart Health and Cellular Energy",
+                        content:
+                            "### Benefits\n\n- **Heart health**: Supports cardiovascular function and acts as an antioxidant.\n- **Energy production**: Vital for mitochondrial energy generation.\n- **Antioxidant properties**: Protects cells from oxidative damage.\n\n### References\n\n1. Littarru, G. P., & Tiano, L. (2010). *Clinical aspects of coenzyme Q10: an update*. [**Nutrition**](https://doi.org/10.1016/j.nut.2009.11.004), 26(3), 250–254.\n2. Madmani, M. E., et al. (2014). *Coenzyme Q10 for heart failure*. [**Cochrane Database of Systematic Reviews**](https://doi.org/10.1002/14651858.CD008684.pub2), (6), CD008684.",
+                    },
+                    {
+                        name: "Turmeric with Piperine",
+                        description:
+                            "Turmeric with Piperine: Anti-Inflammatory and Antioxidant Support",
+                        content:
+                            "### Benefits\n\n- **Anti-inflammatory effects**: Curcumin reduces inflammation.\n- **Enhanced absorption**: Piperine increases bioavailability of curcumin.\n- **Antioxidant activity**: Neutralizes free radicals.\n\n### References\n\n1. Hewlings, S. J., & Kalman, D. S. (2017). *Curcumin: A Review of Its Effects on Human Health*. [**Foods**](https://doi.org/10.3390/foods6100092), 6(10), 92.\n2. Shoba, G., et al. (1998). *Influence of Piperine on the Pharmacokinetics of Curcumin*. [**Planta Medica**](https://doi.org/10.1055/s-2006-957450), 64(4), 353–356.",
+                    },
+                ],
+            };
+
+            function loadSupplementData(callback) {
+                callback(supplementData.supplements);
+            }
+
+            function calculate() {
+                const weight = parseFloat(
+                    document.getElementById("weight").value,
+                );
+                const resultsBody = document.getElementById("results");
+                resultsBody.innerHTML = "";
+
+                supplements.forEach((supp) => {
+                    const row = resultsBody.insertRow();
+                    row.innerHTML = `
+                        <td class="py-2 text-blue-400 cursor-pointer underline" onclick="showDetails('${supp.key}')">${supp.name}</td>
+                        <td class="py-2">${supp.amount} ${supp.unit}/kg</td>
+                        <td class="py-2">${(supp.amount * weight).toFixed(4)} ${supp.unit}</td>
+                    `;
+                });
+            }
+
+            function showDetails(supplementKey) {
+                loadSupplementData((supplementData) => {
+                    const modal = document.getElementById("supplementModal");
+                    const supplement = supplementData.find(
+                        (s) =>
+                            supplementKey.toLowerCase() ===
+                            s.name.toLowerCase(),
+                    );
+                    if (supplement) {
+                        document.getElementById("modalTitle").textContent =
+                            supplement.name;
+                        document.getElementById(
+                            "modalDescription",
+                        ).textContent = supplement.description;
+                        document.getElementById("modalContent").innerHTML =
+                            supplement.content
+                                ? window.marked.parse(supplement.content)
+                                : "<em>No additional content available.</em>";
+                        if (
+                            supplement.references &&
+                            supplement.references.length > 0
+                        ) {
+                            document.getElementById(
+                                "modalReferences",
+                            ).innerHTML =
+                                "<strong>References:</strong><ul>" +
+                                supplement.references
+                                    .map(
+                                        (ref) =>
+                                            `<li>${convertToLink(ref)}</li>`,
+                                    )
+                                    .join("") +
+                                "</ul>";
+                        } else {
+                            document.getElementById(
+                                "modalReferences",
+                            ).innerHTML = "<em>No references available.</em>";
+                        }
+                    } else {
+                        console.error("Supplement details not found.");
+                    }
+                    modal.style.display = "block";
+                });
+            }
+
+            function convertToLink(text) {
+                return text.replace(
+                    /\[(.*?)\]\((.*?)\)/g,
+                    '<a href="$2" target="_blank">$1</a>',
+                );
+            }
+
+            document.getElementById("closeModal").onclick = function () {
+                document.getElementById("supplementModal").style.display =
+                    "none";
+            };
+
+            window.onclick = function (event) {
+                const modal = document.getElementById("supplementModal");
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            };
+
+            document
+                .getElementById("weight")
+                .addEventListener("input", calculate);
+            calculate();
+        </script>
+    </body>
+</html>
