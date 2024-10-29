@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -69,6 +69,7 @@
                         <th class="text-left py-2">Supplement</th>
                         <th class="text-left py-2">Amount per kg</th>
                         <th class="text-left py-2">Calculated Amount</th>
+                        <th class="text-left py-2">My Product</th>
                     </tr>
                 </thead>
                 <tbody id="results"></tbody>
@@ -97,73 +98,91 @@
                     amount: 0.0268,
                     unit: "g",
                     key: "Ashwagandha",
+                    purchaseUrl: "https://amzn.to/4flbsjQ"
                 },
                 {
                     name: "Spirulina",
                     amount: 0.0268,
                     unit: "g",
                     key: "Spirulina and Chlorella",
+                    purchaseUrl: "https://amzn.to/4hox5S2"
                 },
                 {
                     name: "Chlorella",
                     amount: 0.0268,
                     unit: "g",
                     key: "Spirulina and Chlorella",
+                    purchaseUrl: "https://amzn.to/4hmWifL"
                 },
                 {
                     name: "Cacao powder",
                     amount: 0.0804,
                     unit: "g",
                     key: "Cacao Powder",
+                    purchaseUrl: "https://amzn.to/3NHSybh"
                 },
                 {
                     name: "Ceylon cinnamon",
                     amount: 0.0134,
                     unit: "g",
                     key: "Ceylon Cinnamon",
+                    purchaseUrl: "https://amzn.to/48onR4n"
                 },
                 {
                     name: "Glycine",
                     amount: 0.0313,
                     unit: "g",
                     key: "Glycine and N-Acetylcysteine",
+                    purchaseUrl: "https://amzn.to/40tF7mV"
                 },
                 {
                     name: "N-acetyl-cysteine",
                     amount: 0.0223,
                     unit: "g",
                     key: "Glycine and N-Acetylcysteine",
+                    purchaseUrl: "https://amzn.to/48taDDj"
                 },
-                { name: "Taurine", amount: 0.0179, unit: "g", key: "Taurine" },
+                { 
+                    name: "Taurine", 
+                    amount: 0.0179, 
+                    unit: "g", 
+                    key: "Taurine",
+                    purchaseUrl: "https://amzn.to/3YHlczh"
+                },
                 {
                     name: "Calcium ascorbate",
                     amount: 0.0134,
                     unit: "g",
                     key: "Calcium Ascorbate",
+                    purchaseUrl: "https://amzn.to/3AijVFA"
                 },
                 {
                     name: "D3 cholecalciferol",
                     amount: 39.0625,
                     unit: "IU",
                     key: "Vitamin D3",
+                    purchaseUrl: "https://amzn.to/48sMcGa"
                 },
                 {
                     name: "Turmeric root extract",
                     amount: 20.5625,
                     unit: "mg",
                     key: "Turmeric with Piperine",
+                    purchaseUrl: "https://amzn.to/3NKZFj5"
                 },
                 {
                     name: "Black pepper fruit extract",
                     amount: 0.15625,
                     unit: "mg",
                     key: "Turmeric with Piperine",
+                    purchaseUrl: "https://amzn.to/3NKZFj5"
                 },
                 {
                     name: "Coenzyme Q10",
                     amount: 1.5625,
                     unit: "mg",
                     key: "Coenzyme Q10",
+                    purchaseUrl: "https://amzn.to/4fGFFKz"
                 },
             ];
 
@@ -246,8 +265,17 @@
                 callback(supplementData.supplements);
             }
 
-            function roundToHalf(num) {
-                return Math.ceil(num * 2) / 2;
+            function roundTo(num, unit) {
+                switch (unit) {
+                    case "mg":
+                        return Math.ceil(num / 5) * 5;
+                    case "g":
+                        return Math.ceil(num * 2) / 2;
+                    case "IU":
+                        return Math.ceil(num / 100) * 100;
+                    default:
+                        return Math.ceil(num);
+                }
             }
 
             function calculate() {
@@ -262,7 +290,15 @@
                     row.innerHTML = `
                         <td class="py-2 text-blue-400 cursor-pointer underline" onclick="showDetails('${supp.key}')">${supp.name}</td>
                         <td class="py-2">${supp.amount} ${supp.unit}/kg</td>
-                        <td class="py-2">${roundToHalf(supp.amount * weight).toFixed(1)} ${supp.unit}</td>
+                        <td class="py-2">${roundTo(supp.amount * weight, supp.unit).toFixed(1)} ${supp.unit}</td>
+                        <td class="py-2">
+                            <button onclick="window.open('${supp.purchaseUrl}', '_blank')" 
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18.42 10.88c-.51-.51-1.2-.8-1.92-.8h-8.52l-.44-1.28h9.04c.48 0 .88-.4.88-.88s-.4-.88-.88-.88h-10.08c-.44 0-.84.28-.96.72l-1.68 4.88c-.08.24-.08.48 0 .72.12.44.52.72.96.72h11.72c.72 0 1.4-.28 1.92-.8l1.92-1.92c.51-.51.8-1.2.8-1.92s-.28-1.4-.8-1.92zM10 17c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM16 17c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                                </svg>
+                            </button>
+                        </td>
                     `;
                 });
             }
