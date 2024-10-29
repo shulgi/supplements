@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Supplement Calculator</title>
+        <title>Supplement Calculator!!!</title>
         <link
             href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
             rel="stylesheet"
@@ -246,6 +246,10 @@
                 callback(supplementData.supplements);
             }
 
+            function roundToHalf(num) {
+                return Math.ceil(num * 2) / 2;
+            }
+
             function calculate() {
                 const weight = parseFloat(
                     document.getElementById("weight").value,
@@ -258,7 +262,7 @@
                     row.innerHTML = `
                         <td class="py-2 text-blue-400 cursor-pointer underline" onclick="showDetails('${supp.key}')">${supp.name}</td>
                         <td class="py-2">${supp.amount} ${supp.unit}/kg</td>
-                        <td class="py-2">${(supp.amount * weight).toFixed(4)} ${supp.unit}</td>
+                        <td class="py-2">${roundToHalf(supp.amount * weight).toFixed(1)} ${supp.unit}</td>
                     `;
                 });
             }
